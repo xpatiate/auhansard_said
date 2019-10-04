@@ -2,6 +2,7 @@
 """Read XML files containing Hansard debates and extract words not already seen."""
 
 import argparse
+import csv
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, sent_tokenize
 import os
@@ -14,12 +15,14 @@ parser.add_argument('xmldir')
 parser.add_argument('--store', action='store_true')
 parser.add_argument('--print', action='store_true')
 parser.add_argument('--debug', action='store_true')
+parser.add_argument('--csv', action='store', default=None, required=False)
 
 args = parser.parse_args()
 xmldir = args.xmldir
 do_store = args.store
 do_print = args.print
 debug = args.debug
+csv_path = args.csv
 
 r = redis.StrictRedis()
 
@@ -66,21 +69,21 @@ def skip_word(word):
     return any([p.match(word) for p in skip_word_matches])
 
 
-def extract_text(el, house, dateseen, speaker):
+def extract_text(el, house, dateseen, speaker, csv_writer=None):
     """Parse XML and find speech text."""
     mytext = ''
     if isinstance(el, list):
         for subel in el:
-            extract_text(subel, house, dateseen, speaker)
+            extract_text(subel, house, dateseen, speaker, csv_writer)
     elif isinstance(el, str):
         mytext = el
     elif isinstance(el, dict) and '#text' in el:
         mytext = el['#text']
     if mytext:
-        process_text(mytext, house, dateseen, speaker)
+        process_text(mytext, house, dateseen, speaker, csv_writer)
 
 
-def process_text(text, house, dateseen, speaker):
+def process_text(text, house, dateseen, speaker, csv_writer):
     """Break a speech up into words, filter and act on new ones."""
     sentences = sent_tokenize(text)
 
@@ -133,10 +136,13 @@ def process_text(text, house, dateseen, speaker):
                     show_sentence = pre + sentence[start:end] + post
                 context_tweet = saidby + show_sentence
                 print(context_tweet)
-                #print(len(context_tweet))
+                if csv_writer:
+                    print(f"writeing [{word}] and [{context_tweet}] to CSV {csv_writer}")
+                    response = csv_writer.writerow([word, context_tweet])
+                    print(response)
 
 
-def readfile(xmlfile, latest):
+def readfile(xmlfile, latest, csv_writer):
     """Read an XML file and process text."""
     print("reading %s" % xmlfile)
     m = filematch.match(xmlfile)
@@ -152,15 +158,25 @@ def readfile(xmlfile, latest):
                 speaker = speech.get('@speakername')
                 ps = speech.get('p')
                 if ps:
-                    extract_text(ps, house, filedate, speaker)
+                    extract_text(ps, house, filedate, speaker, csv_writer)
+
+csv_file = None
+csv_writer = None
+if csv_path:
+    print(f"GOT CSV PATH {csv_path}, opening writer")
+    csv_file = open(csv_path,'w')
+    csv_writer = csv.writer(csv_file)
 
 
 # Filenames should be named as [date]-[house].xml e.g. 2018-09-20-R.xml
 files = sorted(list(filter(lambda x: x.endswith('xml'), os.listdir(xmldir))))
 for xmlfile in files:
-    readfile(xmldir + '/' + xmlfile, latest)
+    readfile(xmldir + '/' + xmlfile, latest, csv_writer)
 
 if do_print:
     # go through newwords and print any that pass additional criteria
     for word in newwords:
         print(word)
+
+if csv_file:
+    csv_file.close()

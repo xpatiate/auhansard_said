@@ -1,0 +1,4 @@
+[flake8]
+exclude = .git,__pycache__,env,.pytest_cache,local,todo
+max-complexity = 12
+max-line-length = 120
