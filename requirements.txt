@@ -1,0 +1,7 @@
+redis
+bs4
+requests
+nltk
+xmltodict
+tweepy
+black
