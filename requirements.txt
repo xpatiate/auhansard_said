@@ -5,3 +5,4 @@ nltk
 xmltodict
 tweepy
 black
+lxml

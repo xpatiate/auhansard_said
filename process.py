@@ -8,6 +8,7 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 import os
 import regex as re
 import redis
+import sys
 import xmltodict
 
 parser = argparse.ArgumentParser("Process Hansard XML files")
@@ -31,6 +32,7 @@ latest = r.get(date_key).decode() if r.get(date_key) else "2006-01-01"
 
 allwords = {}
 stop_words = set(stopwords.words("english"))
+chamber_lookup = {"R": "House of Reps", "S": "Senate"}
 house_display = {"R": "House of Representatives", "S": "Senate"}
 emdash = "—"
 splitchars = re.compile(r"[-—/]")
@@ -163,7 +165,11 @@ def readfile(xmlfile, latest, csv_writer):
             latest = filedate
         with open(xmlfile, "r") as x:
             obj = xmltodict.parse(x.read())
-            for speech in obj["debates"]["speech"]:
+            chamber = obj["session"]["chamber"]
+            if chamber != chamber_lookup[house]:
+                print(f"House {house} doesn't match chamber {chamber}")
+                sys.exit()
+            for speech in obj["session"]["debates"]["speech"]:
                 speaker = speech.get("@speakername")
                 ps = speech.get("p")
                 if ps:

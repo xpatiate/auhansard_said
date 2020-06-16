@@ -8,15 +8,12 @@ parser.add_argument("file", type=str)
 args = parser.parse_args()
 inputfile = args.file
 
-output = ""
+output = "<session>"
 with open(inputfile, "r") as x:
     soup = BeautifulSoup(x, "xml")
 
-    # print(soup.find_all("span"))
-    # print(soup.get_text())
-
-    # for p in soup.find_all('p'):
-    #    print(p.get_text())
+    header = soup.find("session.header")
+    output += f"{header.chamber}"
 
     output += "<debates>"
     for debate in soup.find_all("debate"):
@@ -31,7 +28,6 @@ with open(inputfile, "r") as x:
                 output += "<p>%s</p>" % p.get_text()
             output += "</speech>"
     output += "</debates>"
-
+output += "</session>"
 outsoup = BeautifulSoup(output, "xml")
-# print(outsoup.decode(formatter='xml'))
-print(str(outsoup))
+print(outsoup)

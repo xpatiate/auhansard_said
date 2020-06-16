@@ -8,13 +8,18 @@ URL_SENATE=$2
 URL_REPS=$3
 # third arg: optional directory in which to copy the downloaded XML files
 DATA_COPY=$4
+# fourth arg: date of speeches
+FILE_DATE=$5
 
 DATA_EXT="data/external"
 DATA_INTERIM="data/interim"
 DATA_PROC="data/processed"
 
 
-FILE_DATE=$( date +%Y-%m-%d )
+if [ -z "$FILE_DATE" ]
+then
+    FILE_DATE=$( date +%Y-%m-%d )
+fi
 echo $FILE_DATE
 FILE_S="${FILE_DATE}-S.xml"
 FILE_R="${FILE_DATE}-R.xml"
@@ -62,6 +67,7 @@ then
     ./process.py $DATA_INTERIM --store \
         && rm $DATA_EXT/*xml \
         && rm $DATA_INTERIM/*xml \
-        && rm $DATA_PROC/*txt
+        && rm $DATA_PROC/*txt \
+        && rm $DATA_PROC/*csv
 
 fi
