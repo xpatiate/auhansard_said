@@ -29,6 +29,11 @@ FILE_C="${FILE_DATE}.csv"
 if [ "$ACTION" == "-h" ]
 then
     echo "manage.sh read|cleanup 'senate_url' 'reps_url' copy_to_dir"
+elif [ "$ACTION" == "mkdir" ]
+then
+    mkdir -p $DATA_EXT
+    mkdir -p $DATA_INTERIM
+    mkdir -p $DATA_PROC
 elif [ "$ACTION" == "read" ]
 then
 

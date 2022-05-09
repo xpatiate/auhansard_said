@@ -10,6 +10,14 @@ This project is a WIP and only partially automated - some manual processes are s
 
 ## Current process
 
+The following directories are used by the `manage.sh` script:
+```
+data/external
+data/interim
+data/processed
+```
+Run `manage.sh mkdir` to create them.
+
 * Watch @AUS_Hansard for transcript links on sitting days (usually partial transcripts from early afternoon with a final version around 10.30-11pm)
 * Run the `manage.sh` bash script with the following arguments:
  * `read` to download and analyse transcripts
@@ -28,4 +36,5 @@ This project is a WIP and only partially automated - some manual processes are s
 
 ## TODO
 
-* Improve analysis to exclude proper nouns
+* Improve text analysis to exclude proper nouns
+* Improve manage.sh or tweet-listener.py to retrieve XML file from links in tweet

@@ -107,7 +107,6 @@ def process_text(text, house, dateseen, speaker, csv_writer):
                     r.set(checkword, "%s:%s:%s" % (house, dateseen, speaker))
                 else:
                     newwords[checkword] = "%s:%s:%s" % (house, dateseen, speaker)
-                print(word)
                 # split text by sentence, take first sentence with word in it, check case-insensitive
                 # if sentence too long for a tweet, reduce chars from start and end
                 show_sentence = sentence
@@ -144,13 +143,8 @@ def process_text(text, house, dateseen, speaker, csv_writer):
                         pre = post = "..."
                     show_sentence = pre + sentence[start:end] + post
                 context_tweet = saidby + show_sentence
-                print(context_tweet)
                 if csv_writer:
-                    print(
-                        f"writeing [{word}] and [{context_tweet}] to CSV {csv_writer}"
-                    )
                     response = csv_writer.writerow([word, context_tweet])
-                    print(response)
 
 
 def readfile(xmlfile, latest, csv_writer):
@@ -179,7 +173,6 @@ def readfile(xmlfile, latest, csv_writer):
 csv_file = None
 csv_writer = None
 if csv_path:
-    print(f"GOT CSV PATH {csv_path}, opening writer")
     csv_file = open(csv_path, "w")
     csv_writer = csv.writer(csv_file)
 
