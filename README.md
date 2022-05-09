@@ -1,22 +1,31 @@
-# AUhansard_said
+# auhansard_said
 
-A collection of scripts used in producing the `AUhansard_said` Twitter feed, which posts a notification every time a new word is used in Hansard debates in the Australian parliament. Data comes from data.openaustralia.org.au which goes back to 2006 so "new" means "unused since 2006".
+A collection of scripts used in producing the `@auhansard_said` Twitter feed, which posts a tweet every time a new word is used in Hansard debates in the Australian parliament. The "newness" of words is determined by comparison against a Redis database, which was originally populated with Hansard transcripts from data.openaustralia.org.au. This data goes back to 2006 so "new" means "unused since 2006".
 
-This is a WIP and some manual processes are still involved in posting notifications, improvements are underway.
+Proper nouns and obvious typos are excluded, but otherwise any word that hasn't appeared since 2006 is considered tweet-worthy, including different grammatical forms of words that have been previously used.
 
-# Current process
+Only words used in speeches within the House of Representatives and Senate are included, committee transcripts are not.
 
-* tweet-listener prints notification of every AUS_Hansard tweet
-* get-xml is supposed to take URL from tweet and download XML
-* extract-speech reads the orig XML and outputs a simplified version
-* process.py reads the simplified XML and prints new words
+This project is a WIP and only partially automated - some manual processes are still involved in scraping and analysing transcripts and posting tweets.
 
-Manual steps in process:
-* TODO: run tweet-listener.py for notifications, have it run get-xml.py
-* for now: watch AUS_Hansard for 'full transcript' links on sitting days (usually around 10.30-11pm)
-* go to link, view XML, download and save as data/external/YYYY-MM-DD-[RS].xml 
-* run extract-speech.py data/external/YYYY-MM-DD-[RS].xml > data/interim/YYYY-MM-DD-[RS].xml to convert to simpler XML format
-* once both R & S (if applicable) are in the `interim` dir, run `process.py data/interim` to print out new words and context
-* redirect output of process.py into a text file e.g. `data/processed/YYYY-MM-DD.txt`
-* run process.py again  with additional `--store` arg to save the new words
-* TODO: run scripts to tweet new words and context replies
+## Current process
+
+* Watch @AUS_Hansard for transcript links on sitting days (usually partial transcripts from early afternoon with a final version around 10.30-11pm)
+* Run the `manage.sh` bash script with the following arguments:
+ * `read` to download and analyse transcripts
+ * URL for the latest Senate transcript XML link (or "0" if no Senate transcript available)
+ * URL for the latest House of Reps transcript XML link (or "0" if no House transcript available)
+ * (optional) directory into which the downloaded transcript should be copied
+ * (optional) date of the transcript file (defaults to current date)
+* The bash script will:
+ * download (and optionally save a copy of) the specified transcripts) to data/external
+ * run `extract-speech.py data/external/YYYY-MM-DD-[RS].xml > data/interim/YYYY-MM-DD-[RS].xml` to convert to a simpler XML format
+ * run `identify_words.py data/interim` to detect new words, and write them (plus context) into a CSV file in `data/processed`
+* Manually review the CSV file, remove proper nouns and typos, remove linebreaks and malformed context 
+* Export environment variables with Twitter account credentials
+* Run `tweet-poster.py data/processed/YYYY-MM-DD.csv --delay` to post tweets with a randomised delay
+* Run `manage.sh cleanup` to remove data files and store tweeted words in the database.
+
+## TODO
+
+* Improve analysis to exclude proper nouns

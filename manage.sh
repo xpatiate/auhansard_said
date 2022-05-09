@@ -59,12 +59,12 @@ then
         echo
     fi
 
-    ./process.py $DATA_INTERIM --csv $DATA_PROC/$FILE_C > $DATA_PROC/$FILE_P
+    ./identify_words.py $DATA_INTERIM --csv $DATA_PROC/$FILE_C > $DATA_PROC/$FILE_P
 
 elif [ "$ACTION" == "cleanup" ]
 then
 
-    ./process.py $DATA_INTERIM --store \
+    ./identify_words.py $DATA_INTERIM --store \
         && rm $DATA_EXT/*xml \
         && rm $DATA_INTERIM/*xml \
         && rm $DATA_PROC/*txt \
