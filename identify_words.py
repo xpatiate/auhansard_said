@@ -90,7 +90,7 @@ def process_text(text, house, dateseen, speaker, csv_writer):
         # split into array -> drop stopwords -> split on [-/] -> strip punctuation
         words = [
             remove_punctuation(s)
-            for w in word_tokenize(sentence)
+            for w in word_tokenize(cleaned)
             if w not in stop_words
             for s in re.split(splitchars, w)
         ]
@@ -122,7 +122,6 @@ def process_text(text, house, dateseen, speaker, csv_writer):
                 post = ""
                 # If whole sentence within max length, show whole thing
                 if diff_sentence > 0:
-                    chunk = int(diff_sentence / 2)
                     loc = sentence.find(word)
                     start = 0
                     end = 0
@@ -144,7 +143,7 @@ def process_text(text, house, dateseen, speaker, csv_writer):
                     show_sentence = pre + sentence[start:end] + post
                 context_tweet = saidby + show_sentence
                 if csv_writer:
-                    response = csv_writer.writerow([word, context_tweet])
+                    csv_writer.writerow([word, context_tweet])
 
 
 def readfile(xmlfile, latest, csv_writer):

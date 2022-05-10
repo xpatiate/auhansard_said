@@ -3,7 +3,6 @@
 import csv
 import os
 import random
-import sys
 import time
 import tweepy
 import argparse
@@ -47,8 +46,6 @@ cx_auth.set_access_token(cx_access_token, cx_access_token_secret)
 # Creation of the actual interface, using authentication
 cx_api = tweepy.API(cx_auth)
 print(cx_api.me())
-
-# sys.exit()
 
 # read CSV file
 with open(csv_path) as csvfile:
