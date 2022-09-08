@@ -24,7 +24,7 @@ print(f"{consumer_key} {consumer_secret} {access_token} {access_token_secret}")
 
 
 class StdOutListener(tweepy.StreamListener):
-    """ Handles data received from the stream. """
+    """Handles data received from the stream."""
 
     def on_status(self, status):
         # Prints the text of the tweet

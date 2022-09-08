@@ -29,6 +29,11 @@ FILE_C="${FILE_DATE}.csv"
 if [ "$ACTION" == "-h" ]
 then
     echo "manage.sh read|cleanup 'senate_url' 'reps_url' copy_to_dir"
+elif [ "$ACTION" == "mkdir" ]
+then
+    mkdir -p $DATA_EXT
+    mkdir -p $DATA_INTERIM
+    mkdir -p $DATA_PROC
 elif [ "$ACTION" == "read" ]
 then
 
@@ -59,12 +64,12 @@ then
         echo
     fi
 
-    ./process.py $DATA_INTERIM --csv $DATA_PROC/$FILE_C > $DATA_PROC/$FILE_P
+    ./identify_words.py $DATA_INTERIM --csv $DATA_PROC/$FILE_C > $DATA_PROC/$FILE_P
 
 elif [ "$ACTION" == "cleanup" ]
 then
 
-    ./process.py $DATA_INTERIM --store \
+    ./identify_words.py $DATA_INTERIM --store \
         && rm $DATA_EXT/*xml \
         && rm $DATA_INTERIM/*xml \
         && rm $DATA_PROC/*txt \
