@@ -9,8 +9,8 @@ args = parser.parse_args()
 inputfile = args.file
 
 output = "<session>"
-with open(inputfile, "r") as x:
-    soup = BeautifulSoup(x, "xml")
+with open(inputfile, "r", encoding="utf-8-sig") as x:
+    soup = BeautifulSoup(x, "lxml-xml")
 
     header = soup.find("session.header")
     output += f"{header.chamber}"

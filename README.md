@@ -1,6 +1,6 @@
 # AUhansard_said
 
-A collection of scripts used in producing the `AUhansard_said` Twitter feed, which posts a notification every time a new word is used in Hansard debates in the Australian parliament. Data comes from data.openaustralia.org.au which goes back to 2006 so "new" means "unused since 2006".
+A collection of scripts used in producing the `AUhansard_said` Twitter feed, which posts a notification every time a new word is used in Hansard debates in the Australian parliament. Some data comes from data.openaustralia.org.au which goes back to 2006 so "new" means "unused since 2006".
 
 This is a WIP and some manual processes are still involved in posting notifications, improvements are underway.
 
@@ -10,13 +10,23 @@ This is a WIP and some manual processes are still involved in posting notificati
 * get-xml is supposed to take URL from tweet and download XML
 * extract-speech reads the orig XML and outputs a simplified version
 * process.py reads the simplified XML and prints new words
+* tweet-poster.py posts the tweets
 
 Manual steps in process:
 * TODO: run tweet-listener.py for notifications, have it run get-xml.py
-* for now: watch AUS_Hansard for 'full transcript' links on sitting days (usually around 10.30-11pm)
-* go to link, view XML, download and save as data/external/YYYY-MM-DD-[RS].xml 
-* run extract-speech.py data/external/YYYY-MM-DD-[RS].xml > data/interim/YYYY-MM-DD-[RS].xml to convert to simpler XML format
-* once both R & S (if applicable) are in the `interim` dir, run `process.py data/interim` to print out new words and context
-* redirect output of process.py into a text file e.g. `data/processed/YYYY-MM-DD.txt`
-* run process.py again  with additional `--store` arg to save the new words
-* TODO: run scripts to tweet new words and context replies
+* for now: watch @AUS_Hansard for 'full transcript' links on sitting days (usually around 10.30-11pm)
+* go to link, view XML, copy urls for Senate and Reps
+* run `manage.sh read "senate-url" "reps-url"`
+* edit the CSV file in data/processed
+* make sure access token env vars are exported in shell
+* run `tweet-poster.py data/processed/[date].csv`
+* run `manage.sh cleanup`
+
+### TODO:
+
+* backfill database with archived Hansards up to 1980 from https://github.com/wragge/hansard-xml
+* figure out how to get 1980-2006
+* improve scraping to require less manual intervention
+* improve detection of proper names, place names, brand names etc
+* better handling of interjections/other speakers
+* investigate detecting novel bigrams
