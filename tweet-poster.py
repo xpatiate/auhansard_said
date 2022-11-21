@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import requests
 import csv
 import os
 import random
@@ -39,6 +40,23 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
 
+mastodon_token = os.environ.get("MASTODON_ACCESS_TOKEN")
+mastodon_base_url = os.environ.get("MASTODON_BASE_URL")
+
+
+def mastodon_post(content, reply_to=None, unlisted=False):
+    post_data = {"status": content}
+    if reply_to:
+        post_data["in_reply_to_id"] = reply_to
+    if unlisted:
+        post_data["visibility"] = "unlisted"
+    headers = {"Authorization": f"Bearer {mastodon_token}"}
+    status_url = f"{mastodon_base_url}/api/v1/statuses"
+    response = requests.post(status_url, headers=headers, data=post_data)
+    return response.json()
+
+
+# No longer using a separate context account
 # cx_consumer_key = os.environ.get("CONTEXT_CONSUMER_KEY")
 # cx_consumer_secret = os.environ.get("CONTEXT_CONSUMER_SECRET")
 # cx_access_token = os.environ.get("CONTEXT_ACCESS_TOKEN")
@@ -54,6 +72,7 @@ api = tweepy.API(auth)
 # cx_api = tweepy.API(cx_auth)
 # print(cx_api.me())
 
+
 # read CSV file
 with open(csv_path) as csvfile:
     csv_reader = csv.reader(csvfile)
@@ -63,14 +82,17 @@ with open(csv_path) as csvfile:
 
         # post each word as a single tweet
         tw_response = api.update_status(word)
+        mt_response = mastodon_post(word)
         print(f"{word} {tw_response.id}")
 
         # use this ID as second arg to `update_status` to send a reply as saidby
         # include TWEET_NAME in the status message
 
-        # use main account API rather than context while in twitter jail
-        api.update_status(f"{TWEET_NAME} {context}", tw_response.id)
+        context_str = f"{TWEET_NAME} {context}"
+        api.update_status(context_str, tw_response.id)
         # cx_api.update_status(f"{TWEET_NAME} {context}", tw_response.id)
+        mastodon_post(context, reply_to=mt_response["id"], unlisted=True)
+
         if do_delay:
             time.sleep(random.randint(DELAY_MIN, DELAY_MAX))
 
